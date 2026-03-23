@@ -1,0 +1,33 @@
+# =========================
+# Contracts (Foundry)
+# =========================
+contracts/lib/
+contracts/out/
+contracts/cache/
+contracts/broadcast/
+contracts/.DS_Store
+contracts/node_modules/
+
+# =========================
+# Backend (Go) - 为 Day 7 预留
+# =========================
+backend/bin/
+backend/obj/
+backend/*.exe
+backend/*.exe~
+backend/*.dll
+backend/*.so
+backend/*.dylib
+backend/.env
+
+# =========================
+# Frontend (Next.js) - 为后续预留
+# =========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
