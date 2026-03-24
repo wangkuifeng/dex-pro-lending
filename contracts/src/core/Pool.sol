@@ -42,7 +42,7 @@ contract Pool is IPool {
         address asset,
         uint256 amount,
         address onBehalfOf,
-        uint16 /* referralCode */  // 修改这里 (原本是 uint16 referralCode)
+        uint16 referralCode // [修改]: 恢复参数名
     ) external override {
         // 1. Checks (校验)
         require(amount > 0, "INVALID_AMOUNT");
@@ -59,6 +59,9 @@ contract Pool is IPool {
 
         // 调用 aToken 铸造凭证给 onBehalfOf
         IAToken(reserve.aTokenAddress).mint(msg.sender, onBehalfOf, amount, currentLiquidityIndex);
+
+        // [新增]: 触发事件
+        emit Supply(asset, msg.sender, onBehalfOf, amount, referralCode);
     }
 
    /**
@@ -92,7 +95,7 @@ contract Pool is IPool {
         IAToken(reserve.aTokenAddress).burn(msg.sender, to, amountToWithdraw, currentLiquidityIndex);
 
         // 4. 发送事件 (今天暂略，后续配合 Go Indexer 一起补全)
-        // emit Withdraw(asset, msg.sender, to, amountToWithdraw);
+        emit Withdraw(asset, msg.sender, to, amountToWithdraw);
 
         return amountToWithdraw;
     }
@@ -103,8 +106,8 @@ contract Pool is IPool {
     function borrow(
         address asset,
         uint256 amount,
-        uint256 /* interestRateMode */,
-        uint16 /* referralCode */,
+        uint256 interestRateMode,
+        uint16 referralCode,
         address onBehalfOf
     ) external override {
         require(amount > 0, "INVALID_AMOUNT");
@@ -135,6 +138,8 @@ contract Pool is IPool {
         // 4. Interactions: 从 AToken 放款给借款人
         DataTypes.ReserveData storage reserve = _reserves[asset];
         IAToken(reserve.aTokenAddress).transferUnderlyingTo(onBehalfOf, amount);
+
+        emit Borrow(asset, msg.sender, onBehalfOf, amount, interestRateMode, 0, referralCode);
     }
 
     /**
@@ -217,7 +222,7 @@ contract Pool is IPool {
     function repay(
         address asset,
         uint256 amount,
-        uint256 /* interestRateMode */,
+        uint256 interestRateMode,
         address onBehalfOf
     ) external override returns (uint256) {
         require(amount > 0, "INVALID_AMOUNT");
@@ -238,6 +243,8 @@ contract Pool is IPool {
         // Interactions: 将用户的底层资产还回到 AToken 合约中
         DataTypes.ReserveData storage reserve = _reserves[asset];
         IERC20(asset).safeTransferFrom(msg.sender, reserve.aTokenAddress, paybackAmount);
+
+        emit Repay(asset, onBehalfOf, msg.sender, paybackAmount);
 
         return paybackAmount;
     }
@@ -269,7 +276,7 @@ contract Pool is IPool {
         address debtAsset,
         address user,
         uint256 debtToCover,
-        bool /* receiveAToken */
+        bool receiveAToken
     ) external override {
         // 1. 验证健康因子确实低于 1.0 (1e18)
         (,,,,, uint256 healthFactor) = this.getUserAccountData(user);
@@ -306,5 +313,8 @@ contract Pool is IPool {
         // b. 清算者把代还的债务资金，打回到债务资产的 aToken 合约里，补充流动性
         DataTypes.ReserveData storage debtReserve = _reserves[debtAsset];
         IERC20(debtAsset).safeTransferFrom(msg.sender, debtReserve.aTokenAddress, actualDebtToLiquidate);
+    
+        emit LiquidationCall(collateralAsset, debtAsset, user, actualDebtToLiquidate, collateralToReceive, msg.sender, receiveAToken);
+
     }
 }

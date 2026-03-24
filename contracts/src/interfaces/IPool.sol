@@ -4,6 +4,67 @@ pragma solidity ^0.8.20;
 import {DataTypes} from "../libraries/DataTypes.sol";
 
 interface IPool {
+
+    /* ========================================================================= */
+    /* EVENTS                                     */
+    /* ========================================================================= */
+
+    /**
+     * @notice 存款事件
+     * @param reserve 底层资产地址
+     * @param user 实际触发交易的用户
+     * @param onBehalfOf 接收 aToken 的受益人地址
+     * @param amount 存款金额
+     * @param referralCode 推荐码
+     */
+    event Supply(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, uint16 referralCode);
+
+    /**
+     * @notice 提取事件
+     * @param reserve 底层资产地址
+     * @param user 触发提取的用户
+     * @param to 接收底层资产的地址
+     * @param amount 提取金额
+     */
+    event Withdraw(address indexed reserve, address indexed user, address indexed to, uint256 amount);
+
+    /**
+     * @notice 借款事件
+     * @param reserve 底层资产地址
+     * @param user 触发借款的用户
+     * @param onBehalfOf 实际承担债务的地址
+     * @param amount 借款金额
+     * @param interestRateMode 借款利率模式 (1 = 稳定, 2 = 浮动)
+     * @param borrowRate 借款时的瞬间利率 (重要：供后端记录快照)
+     * @param referralCode 推荐码
+     */
+    event Borrow(address indexed reserve, address user, address indexed onBehalfOf, uint256 amount, uint256 interestRateMode, uint256 borrowRate, uint16 referralCode);
+
+    /**
+     * @notice 还款事件
+     * @param reserve 底层资产地址
+     * @param user 实际被消除债务的地址 (onBehalfOf)
+     * @param repayer 实际支付底层资产的地址 (msg.sender)
+     * @param amount 还款金额
+     */
+    event Repay(address indexed reserve, address indexed user, address indexed repayer, uint256 amount);
+
+    /**
+     * @notice 清算事件
+     * @param collateralAsset 抵押物资产地址
+     * @param debtAsset 债务资产地址
+     * @param user 被清算的用户地址
+     * @param debtToCover 清算者代还的债务数量
+     * @param liquidatedCollateralAmount 被清算的抵押物数量 (含清算奖励)
+     * @param liquidator 清算者地址
+     * @param receiveAToken 是否直接接收 aToken
+     */
+    event LiquidationCall(address indexed collateralAsset, address indexed debtAsset, address indexed user, uint256 debtToCover, uint256 liquidatedCollateralAmount, address liquidator, bool receiveAToken);
+
+    /* ========================================================================= */
+    /* FUNCTIONS                                    */
+    /* ========================================================================= */
+    
     /**
      * @notice 向协议提供流动性（存款）
      * @param asset 底层资产地址 (如 WETH/USDC)
