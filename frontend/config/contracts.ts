@@ -2,7 +2,7 @@
 import { parseAbi } from 'viem';
 
 // 替换为你最新部署的 Pool 地址 (Sepolia)
-export const POOL_ADDRESS = '0x53da77297453cEA71949fB260335E3eC7ce0Cf25';
+export const POOL_ADDRESS = '0xB6f654b7eEADbC7171fb1BD2f23a2ea0E8c0604E';
 
 export const ERC20_ABI = parseAbi([
   'function approve(address spender, uint256 amount) external returns (bool)',
