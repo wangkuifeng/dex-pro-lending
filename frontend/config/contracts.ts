@@ -14,5 +14,7 @@ export const ERC20_ABI = parseAbi([
 
 export const POOL_ABI = parseAbi([
   'function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode) external',
-  'function withdraw(address asset, uint256 amount, address to) external returns (uint256)'
+  'function withdraw(address asset, uint256 amount, address to) external returns (uint256)',
+  // 👇 关键修复：加上这行，Wagmi 才能去读你的资产数据！并且去掉变量名防止崩溃！
+  'function getUserAccountData(address user) external view returns (uint256, uint256, uint256, uint256, uint256, uint256)'
 ]);
