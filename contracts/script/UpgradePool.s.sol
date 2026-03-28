@@ -17,7 +17,7 @@ import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.s
  */
 contract UpgradePool is Script {
     // ========== 配置 ==========
-    address constant PROXY_ADDRESS = 0xB6f654b7eEADbC7171fb1BD2f23a2ea0E8c0604E;
+    address constant PROXY_ADDRESS = 0xe5ED95744b5a5987CBFd06827BC194F4664cC680;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

@@ -208,7 +208,8 @@ contract PoolUpgradeable is
         totalDebtBase = 0;
         uint256 weightedLiquidationThreshold = 0;
 
-        // 已知的资产地址 (Sepolia 测试网)
+        // 已知的资产地址和对应精度 (Sepolia 测试网)
+        // WETH: 18 位, USDC: 6 位, USDT: 6 位
         address[3] memory knownAssets = [
             0x94249A6B20E2b6B30C2e059E921Cf110B0d48E40, // WETH
             0x98fB8e836Ee1b62420EF3Fd634f69EC677fc49bd, // USDC
@@ -227,7 +228,7 @@ contract PoolUpgradeable is
             uint256 userBalance = IERC20(reserve.aTokenAddress).balanceOf(user);
             if (userBalance == 0) continue;
 
-            // 获取资产价格 (8 位精度)
+            // 获取资产价格 (Chainlink 8 位精度)
             uint256 assetPrice = _priceOracle.getAssetPrice(asset);
             if (assetPrice == 0) continue;
 
@@ -235,8 +236,15 @@ contract PoolUpgradeable is
             uint256 reserveLiquidationThreshold = (reserve.configuration >> 16) & 0xFFFF;
 
             // 计算抵押品价值 (USD, 8 位精度)
-            // userBalance (18 位) * price (8 位) / 1e18 = USD (8 位)
-            uint256 collateralValue = (userBalance * assetPrice) / 1e18;
+            // 需要根据代币精度调整: price (8 位) * balance / 10^decimals = USD (8 位)
+            uint256 collateralValue;
+            if (i == 0) {
+                // WETH: 18 位精度
+                collateralValue = (userBalance * assetPrice) / 1e18;
+            } else {
+                // USDC/USDT: 6 位精度
+                collateralValue = (userBalance * assetPrice) / 1e6;
+            }
             totalCollateralBase += collateralValue;
 
             // 累加权清算阈值

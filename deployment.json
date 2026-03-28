@@ -3,7 +3,7 @@
   "network": "sepolia",
   "contracts": {
     "pool": "0xe5ED95744b5a5987CBFd06827BC194F4664cC680",
-    "poolImplementation": "0x8561c8ea1FEc0dd2bcd7c8e98d08d7375501595d",
+    "poolImplementation": "0x2410D2713b2E0EE6E24C64aF9C6EC80EdA98d0cc",
     "priceOracle": "0x8cFe668ed04B62dF79182C97c40ad49824433493",
     "aTokens": {
       "WETH": "0x00A7CD9441e8ec2bF65582569d7f5e9f45A9dF22",
