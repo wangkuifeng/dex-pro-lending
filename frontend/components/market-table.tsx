@@ -3,6 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { MarketData, MarketDataRaw } from "@/types/market";
 import { API_BASE_URL } from "@/lib/config";
+import { SupplyWithdraw } from "./supply-withdraw";
+import { BorrowRepay } from "./borrow-repay";
+import { useWallet } from "./wallet-connect";
 
 const fetchMarkets = async (): Promise<MarketData[]> => {
   const res = await fetch(`${API_BASE_URL}/api/markets`);
@@ -25,6 +28,7 @@ const fetchMarkets = async (): Promise<MarketData[]> => {
 };
 
 export function MarketTable() {
+  const { account } = useWallet();
   const { data: markets, isLoading, error } = useQuery({
     queryKey: ["marketsOverview"],
     queryFn: fetchMarkets,
@@ -46,32 +50,51 @@ export function MarketTable() {
           <tr>
             <th className="px-6 py-4">资产</th>
             <th className="px-6 py-4">总锁仓量 (TVL)</th>
+            <th className="px-6 py-4">可用流动性</th>
             <th className="px-6 py-4">存款 APY</th>
             <th className="px-6 py-4">借款 APY</th>
             <th className="px-6 py-4 text-right">操作</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">
-          {markets?.map((market) => (
-            <tr key={market.asset_address} className="hover:bg-gray-750 transition-colors">
-              <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
-                <span className="w-6 h-6 rounded-full bg-gray-600 block"></span>
-                {market.symbol}
-              </td>
-              <td className="px-6 py-4">${Number(market.tvl).toLocaleString()}</td>
-              <td className="px-6 py-4 text-green-400">
-                {(market.supplyApy * 100).toFixed(2)}%
-              </td>
-              <td className="px-6 py-4 text-orange-400">
-                {(market.borrowApy * 100).toFixed(2)}%
-              </td>
-              <td className="px-6 py-4 text-right">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-sm font-medium transition-colors">
-                  详情
-                </button>
-              </td>
-            </tr>
-          ))}
+          {markets?.map((market) => {
+            const tvl = parseFloat(market.tvl);
+            const borrowed = parseFloat(market.totalBorrowed);
+            const available = tvl - borrowed;
+
+            return (
+              <tr key={market.asset_address} className="hover:bg-gray-750 transition-colors">
+                <td className="px-6 py-4 font-medium text-white flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-blue-600 block"></span>
+                  {market.symbol}
+                </td>
+                <td className="px-6 py-4">
+                  ${available.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+                <td className="px-6 py-4">
+                  ${available.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </td>
+                <td className="px-6 py-4 text-green-400">
+                  {(market.supplyApy * 100).toFixed(2)}%
+                </td>
+                <td className="px-6 py-4 text-orange-400">
+                  {(market.borrowApy * 100).toFixed(2)}%
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    {account ? (
+                      <>
+                        <SupplyWithdraw asset={market} />
+                        <BorrowRepay asset={market} />
+                      </>
+                    ) : (
+                      <span className="text-gray-500 text-sm">连接钱包以操作</span>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

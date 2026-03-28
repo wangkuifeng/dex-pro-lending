@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
 
@@ -140,4 +140,29 @@ export function WalletConnect() {
       )}
     </div>
   );
+}
+
+// 导出 hook 供其他组件使用
+export function useWallet() {
+  const [account, setAccount] = useState<string>('');
+
+  useEffect(() => {
+    if (window.ethereum?.selectedAddress) {
+      setAccount(window.ethereum.selectedAddress);
+    }
+
+    const handleAccountsChanged = (accounts: string[]) => {
+      setAccount(accounts[0] || '');
+    };
+
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+    }
+
+    return () => {
+      window.ethereum?.removeListener('accountsChanged', handleAccountsChanged);
+    };
+  }, []);
+
+  return { account, isConnected: !!account };
 }
