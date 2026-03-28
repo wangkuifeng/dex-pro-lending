@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { MarketData, MarketDataRaw } from "@/types/market";
+import { MarketData } from "@/types/market";
 import { API_BASE_URL } from "@/lib/config";
 import { SupplyWithdraw } from "./supply-withdraw";
 import { BorrowRepay } from "./borrow-repay";
@@ -12,9 +12,48 @@ const fetchMarkets = async (): Promise<MarketData[]> => {
   if (!res.ok) throw new Error("Network response was not ok");
 
   const json = await res.json();
-  const markets: MarketDataRaw[] = json.data || [];
+  const markets = json.data || [];
 
-  return markets.map((market: MarketDataRaw): MarketData => ({
+  // 如果后端返回空数据，返回静态测试数据
+  if (markets.length === 0) {
+    return [
+      {
+        asset_address: '0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14',
+        symbol: 'WETH',
+        name: 'Wrapped Ether',
+        decimals: 18,
+        tvl: '1000000',
+        totalBorrowed: '500000',
+        supplyApy: 0.05,
+        borrowApy: 0.08,
+        availableLiquidity: '500000',
+      },
+      {
+        asset_address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        decimals: 6,
+        tvl: '2000000',
+        totalBorrowed: '800000',
+        supplyApy: 0.03,
+        borrowApy: 0.06,
+        availableLiquidity: '1200000',
+      },
+      {
+        asset_address: '0x7169D38820dfd117C3FA1f22a697DBA58d90BA06',
+        symbol: 'USDT',
+        name: 'Tether USD',
+        decimals: 6,
+        tvl: '1500000',
+        totalBorrowed: '600000',
+        supplyApy: 0.035,
+        borrowApy: 0.065,
+        availableLiquidity: '900000',
+      },
+    ];
+  }
+
+  return markets.map((market: any): MarketData => ({
     asset_address: market.asset_address,
     symbol: market.symbol,
     name: market.name,
@@ -45,6 +84,14 @@ export function MarketTable() {
 
   return (
     <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden mt-8">
+      {markets && markets.length > 0 && (
+        <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg mb-4">
+          <div className="text-sm text-yellow-400">
+            ℹ️ 当前显示测试数据。要使用真实数据，需要先部署合约到 Sepolia 测试网。
+          </div>
+        </div>
+      )}
+
       <table className="w-full text-left text-sm text-gray-300">
         <thead className="bg-gray-900/50 text-gray-400 uppercase font-semibold">
           <tr>
@@ -69,7 +116,7 @@ export function MarketTable() {
                   {market.symbol}
                 </td>
                 <td className="px-6 py-4">
-                  ${available.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ${tvl.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </td>
                 <td className="px-6 py-4">
                   ${available.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
