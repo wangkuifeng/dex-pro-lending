@@ -9,27 +9,32 @@ export function UserDashboard() {
   const { account, isConnected } = useWallet();
   const [userState, setUserState] = useState<UserState | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!account) return;
 
     const fetchUserState = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const response = await fetch(`${API_BASE_URL}/api/users/${account}`);
         if (response.ok) {
           const data = await response.json();
+          console.log('User data:', data);
           setUserState(data);
+        } else {
+          setError('无法获取用户数据');
         }
-      } catch (error) {
-        console.error('Failed to fetch user state:', error);
+      } catch (err) {
+        console.error('Failed to fetch user state:', err);
+        setError('获取用户数据失败');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchUserState();
-    // 每15秒刷新一次
     const interval = setInterval(fetchUserState, 15000);
     return () => clearInterval(interval);
   }, [account]);
@@ -52,7 +57,18 @@ export function UserDashboard() {
     );
   }
 
-  const healthFactor = parseFloat(userState?.accountData.healthFactor || '0');
+  if (error) {
+    return (
+      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+        <h2 className="text-xl font-semibold text-white mb-4">我的账户</h2>
+        <div className="text-red-400">{error}</div>
+      </div>
+    );
+  }
+
+  // 安全的默认值
+  const accountData = userState?.accountData;
+  const healthFactor = parseFloat(accountData?.healthFactor || '0');
   const isHealthy = healthFactor >= 1.0 || healthFactor === 0;
 
   return (
@@ -64,21 +80,21 @@ export function UserDashboard() {
           <div className="bg-gray-900/50 rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">总抵押品价值</div>
             <div className="text-2xl font-bold text-green-400">
-              ${parseFloat(userState?.accountData.totalCollateralBase || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${parseFloat(accountData?.totalCollateralBase || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
           <div className="bg-gray-900/50 rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">总债务</div>
             <div className="text-2xl font-bold text-orange-400">
-              ${parseFloat(userState?.accountData.totalDebtBase || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${parseFloat(accountData?.totalDebtBase || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
           <div className="bg-gray-900/50 rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">可借额度</div>
             <div className="text-2xl font-bold text-blue-400">
-              ${parseFloat(userState?.accountData.availableBorrowsBase || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${parseFloat(accountData?.availableBorrowsBase || '0').toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
@@ -126,8 +142,8 @@ export function UserDashboard() {
 
           <div className="space-y-4">
             {userState.reserves.map((reserve) => {
-              const supplied = parseFloat(reserve.suppliedAmount);
-              const borrowed = parseFloat(reserve.borrowedAmount);
+              const supplied = parseFloat(reserve.suppliedAmount || '0');
+              const borrowed = parseFloat(reserve.borrowedAmount || '0');
 
               if (supplied === 0 && borrowed === 0) return null;
 
