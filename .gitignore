@@ -7,6 +7,7 @@ contracts/cache/
 contracts/broadcast/
 contracts/.DS_Store
 contracts/node_modules/
+contracts/.env
 
 # =========================
 # Backend (Go) - 为 Day 7 预留
@@ -31,3 +32,4 @@ frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
+node_modules
