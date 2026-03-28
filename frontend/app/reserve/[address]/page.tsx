@@ -6,7 +6,7 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { parseUnits, formatUnits } from 'viem';
 import { ArrowLeft, CheckCircle2, Loader2, ShieldCheck, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { POOL_ADDRESS, ERC20_ABI, POOL_ABI } from '@/config/contracts';
+import { POOL_ADDRESS, ERC20_ABI, POOL_ABI, TOKENS } from '@/config/contracts';
 
 export default function ReservePage({ params }: { params: Promise<{ address: string }> }) {
   // 1. 处理 Next.js 15 的异步路由参数
@@ -34,8 +34,19 @@ export default function ReservePage({ params }: { params: Promise<{ address: str
   });
 
   // 3. 状态判断逻辑
-  // 简单判断精度：WETH 使用 18 位，USDC/USDT 使用 6 位
-  const isWeth = assetAddress.toLowerCase().includes('a427'); 
+  // 根据实际代币地址判断精度和符号
+  const isWeth = assetAddress.toLowerCase() === TOKENS.WETH.toLowerCase();
+  const isUSDC = assetAddress.toLowerCase() === TOKENS.USDC.toLowerCase();
+  const isUSDT = assetAddress.toLowerCase() === TOKENS.USDT.toLowerCase();
+
+  // 获取代币符号
+  const getTokenSymbol = () => {
+    if (isWeth) return 'WETH';
+    if (isUSDC) return 'USDC';
+    if (isUSDT) return 'USDT';
+    return 'Token';
+  };
+
   const decimals = isWeth ? 18 : 6;
   const parsedAmount = amount ? parseUnits(amount, decimals) : 0n;
   const needsApprove = parsedAmount > allowance;
@@ -141,7 +152,7 @@ export default function ReservePage({ params }: { params: Promise<{ address: str
             
             <h3 className="text-3xl font-black text-white mb-3 tracking-tight">Success!</h3>
             <p className="text-slate-400 mb-8 leading-relaxed">
-              Your {amount} {isWeth ? 'WETH' : 'USDC'} has been securely supplied to the protocol.
+              Your {amount} {getTokenSymbol()} has been securely supplied to the protocol.
             </p>
 
             <div className="space-y-4">

@@ -32,7 +32,7 @@ func main() {
 	// 4. 启动后台事件监听器 (Goroutine 常驻，无阻塞)
 	poolAddress := os.Getenv("POOL_CONTRACT_ADDRESS")
 	if poolAddress == "" {
-		poolAddress = "0x53da77297453cEA71949fB260335E3eC7ce0Cf25" // 替换为 Anvil 实际部署的 Pool 地址
+		poolAddress = "0xe5ED95744b5a5987CBFd06827BC194F4664cC680" // 可升级 Pool 合约 (UUPS Proxy)
 	}
 	go indexer.StartIndexer(poolAddress)
 

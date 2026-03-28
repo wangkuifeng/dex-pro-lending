@@ -2,22 +2,42 @@
   "chainId": 11155111,
   "network": "sepolia",
   "contracts": {
-    "pool": "0xB6f654b7eEADbC7171fb1BD2f23a2ea0E8c0604E",
-    "priceOracle": "0x4550C5C073719c7d876666d98Ec71f3f7EE4A4D6",
+    "pool": "0xe5ED95744b5a5987CBFd06827BC194F4664cC680",
+    "poolImplementation": "0x8561c8ea1FEc0dd2bcd7c8e98d08d7375501595d",
+    "priceOracle": "0x8cFe668ed04B62dF79182C97c40ad49824433493",
     "aTokens": {
-      "WETH": "0x4970D565CEc150ca68fBBB25b2107A4D15e6d530",
-      "USDC": "0xbC8471763A1b5A1B7b7eBa078e15129035388ab9",
-      "USDT": "0x3F0eFA9e0281Bea90994582634975FbcD86E07B3"
+      "WETH": "0x00A7CD9441e8ec2bF65582569d7f5e9f45A9dF22",
+      "USDC": "0x95DDA02446c37490480b66350Aba4769097FdD7b",
+      "USDT": "0xe395ea3d0cb286cA11204C7367ADA1C5a5F823FB"
     }
   },
   "tokens": {
-    "WETH": "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
-    "USDC": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
-    "USDT": "0x7169D38820dfd117C3FA1f22a697DBA58d90BA06"
+    "WETH": "0x94249A6B20E2b6B30C2e059E921Cf110B0d48E40",
+    "USDC": "0x98fB8e836Ee1b62420EF3Fd634f69EC677fc49bd",
+    "USDT": "0xfe012B9C851435D1E0303f63E7455CaA0A9a2e52"
   },
   "priceFeeds": {
-    "ETH_USD": "0x694AA1769357215DE4FAC081bf1f309aDC325306",
-    "USDC_USD": "0xa2f78AB2355fE2F984D808b5ce067eEbD5E912fb",
-    "USDT_USD": "0x3E7d1eAB13ad0104d2750B8863b489D65364e32D"
+    "ETH_USD": "0x694AA1769357215DE4FAC081bf1f309aDC325306"
+  },
+  "reserveConfig": {
+    "WETH": {
+      "ltv": 8000,
+      "liquidationThreshold": 8500,
+      "liquidationBonus": 10500
+    },
+    "USDC": {
+      "ltv": 7500,
+      "liquidationThreshold": 8000,
+      "liquidationBonus": 10500
+    },
+    "USDT": {
+      "ltv": 7500,
+      "liquidationThreshold": 8000,
+      "liquidationBonus": 10500
+    }
+  },
+  "upgradeable": {
+    "type": "UUPS",
+    "proxyAdmin": "0x799416951eA1b21Fc1306e172d2E018b11787379"
   }
 }
